@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Shahriar Mumin Khan",
+        "email": "iamsmk99@gmail.com",
+        "role_type": "Technical",
+        "experience_level": "Entry-Level",
+        "availability": "I will be available for all the next three days ",
+        "timezone": "UTC+5:30 (IST) - India",
+        "availability_structured": [],
+        "created_at": "2025-03-17 07:47:02"
+    },
+    {
+        "name": "Mumin",
+        "email": "iamsmk99@gmail.com",
+        "role_type": "Technical",
+        "experience_level": "Entry-Level",
+        "availability": "Monday 2-4 am, tuesday 3-8 am, friday 8-10am\n",
+        "timezone": "UTC+5:30 (IST) - India",
+        "availability_structured": [],
+        "created_at": "2025-03-17 07:47:49"
+    }
+]
