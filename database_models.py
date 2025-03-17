@@ -12,7 +12,7 @@ class SimpleDatabase:
     
     def __init__(self, db_path="scheduler.db"):
         """Initialize database connection"""
-        self.conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path,check_same_thread=False)
         self.conn.row_factory = sqlite3.Row  # Return rows as dictionaries
         self.cursor = self.conn.cursor()
         self._create_tables()

@@ -12,7 +12,16 @@ class CalendarIntegration:
         self.service = None
         self.connected = False
         self._setup_google_calendar()
+    # Add this to the CalendarIntegration class in calender_module.py
+    def create_event(self, event_details):
+
+    # For demo purposes, generate a mock event ID
+        event_id = f"evt_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
+    # In a real implementation, this would make an API call to a calendar service
+        print(f"[DEMO MODE] Creating calendar event: {event_details['title']}")
+    
+        return event_id
     def _setup_google_calendar(self):
         SCOPES = ['https://www.googleapis.com/auth/calendar']
         creds = None
@@ -241,14 +250,26 @@ if __name__ == "__main__":
         
         availability = google_calendar.get_availability(user_email, start_time, end_time)
         print(f"Availability slots: {availability}")
+        start_time = datetime.datetime.utcnow().replace(hour=4, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+        end_time = start_time + datetime.timedelta(hours=1)
 
         # Create a meeting
         meeting_id = google_calendar.create_meeting(
-            title="Test Meeting",
-            start_time=start_time + datetime.timedelta(minutes=30),
-            end_time=start_time + datetime.timedelta(hours=1),
-            attendees=["iamsmk99@gmail.com"],
-            description="This is a test meeting.",
+            title="Updated interview time with Basis Vectors",
+            start_time=start_time,
+            end_time=end_time,
+            attendees=["saikiran172003@gmail.com"],
+            description="""Hi Saikiran,
+
+Greetings from team Basis Vectors!
+
+Your interview has been scheduled for the following date and time:
+
+17th March 2025, 9:30 AM - 10:30 AM.
+
+Please join the meeting using the following same link
+
+""",
             location="Online"
         )
         print(f"Meeting created with ID: {meeting_id}")

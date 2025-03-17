@@ -137,16 +137,24 @@ class SmartScheduler:
         slot_day = slot_time.weekday()
 
         for schedule in recent_schedules:
-            schedule_time = datetime.fromisoformat(schedule['start'])
+            # Check if 'start' key exists in the schedule dictionary
+            if 'start' not in schedule:
+                continue  # Skip this schedule if it doesn't have a 'start' key
             
-            if abs(schedule_time.hour - slot_hour) <= 1:
-                bonus += 5
+            try:
+                schedule_time = datetime.fromisoformat(schedule['start'])
                 
-            if schedule_time.weekday() == slot_day:
-                bonus += 3
-                
-            if schedule.get('completed_successfully', False):
-                bonus += 2
+                if abs(schedule_time.hour - slot_hour) <= 1:
+                    bonus += 5
+                    
+                if schedule_time.weekday() == slot_day:
+                    bonus += 3
+                    
+                if schedule.get('completed_successfully', False):
+                    bonus += 2
+            except (ValueError, TypeError):
+                # Handle cases where the start time is not in a valid format
+                continue
         
         return min(bonus, 25) 
         

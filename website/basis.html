@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="basis.css">
+    <script src="api-service.js"></script>
+<script src="user-management.js"></script>
+<script src="availability-management.js"></script>
+<script src="interview-scheduling.js"></script>
+<script src="demo-utils.js"></script>
+<script src="basis.js"></script>
+<script src="error-handling.js"></script>
+    <title>AI Scheduling Bot</title>
+</head>
+<body>
+    <header>
+        <h1>AI Scheduling Bot</h1>
+        <p>Automatically match candidate and recruiter availability</p>
+    </header>
+
+    <main>
+        <!-- User Management Section -->
+        <section id="user-management">
+            <h2>User Management</h2>
+            
+            <div class="card">
+                <h3>Add New User</h3>
+                <form id="create-user-form">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user-type">User Type:</label>
+                        <select id="user-type" name="user_type" required>
+                            <option value="candidate">Candidate</option>
+                            <option value="recruiter">Recruiter</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="priority">Priority:</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">Add User</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3>User List</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" data-type="candidate">Candidates</button>
+                    <button class="tab-btn" data-type="recruiter">Recruiters</button>
+                </div>
+                
+                <div id="user-list" class="list-container">
+                    <!-- Users will be displayed here -->
+                    <p class="empty-message">No users found</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Availability Management -->
+        <section id="availability-management">
+            <h2>Availability Management</h2>
+            
+            <div class="card">
+                <h3>Add Availability</h3>
+                
+                <form id="availability-form">
+                    <div class="form-group">
+                        <label for="user-select">Select User:</label>
+                        <select id="user-select" name="user_id" required>
+                            <option value="">-- Select User --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tabs">
+                        <button type="button" class="tab-btn active" data-tab="text-input">Text Input</button>
+                        <button type="button" class="tab-btn" data-tab="manual-input">Manual Input</button>
+                    </div>
+                    
+                    <div id="text-input" class="tab-content active">
+                        <div class="form-group">
+                            <label for="availability-text">Describe Your Availability:</label>
+                            <textarea id="availability-text" name="text" rows="4" placeholder="Example: I'm available on Monday from 9am to 12pm and Tuesday from 2pm to 5pm"></textarea>
+                        </div>
+                        
+                        <button type="button" id="parse-btn">Parse Availability</button>
+                    </div>
+                    
+                    <div id="manual-input" class="tab-content">
+                        <div id="slots-container">
+                            <div class="slot-row">
+                                <div class="form-group">
+                                    <label>From:</label>
+                                    <input type="datetime-local" name="slot_start[]">
+                                </div>
+                                <div class="form-group">
+                                    <label>To:</label>
+                                    <input type="datetime-local" name="slot_end[]">
+                                </div>
+                                <button type="button" class="remove-slot">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="add-slot-btn">+ Add Time Slot</button>
+                        <button type="button" id="save-slots-btn">Save Availability</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3>Current Availability</h3>
+                <div class="form-group">
+                    <label for="view-user-select">Select User:</label>
+                    <select id="view-user-select">
+                        <option value="">-- Select User --</option>
+                    </select>
+                </div>
+                
+                <div id="availability-list" class="list-container">
+                    <!-- Availability slots will be displayed here -->
+                    <p class="empty-message">No availability data</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Interview Scheduling -->
+        <section id="interview-scheduling">
+            <h2>Schedule Interview</h2>
+            
+            <div class="card">
+                <form id="schedule-form">
+                    <div class="form-group">
+                        <label for="candidate-select">Select Candidate:</label>
+                        <select id="candidate-select" name="candidate_id" required>
+                            <option value="">-- Select Candidate --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recruiter-select">Select Recruiter:</label>
+                        <select id="recruiter-select" name="recruiter_id" required>
+                            <option value="">-- Select Recruiter --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="duration">Duration (minutes):</label>
+                        <input type="number" id="duration" name="duration_minutes" value="60" min="15" step="15">
+                    </div>
+                    
+                    <button type="submit">Find Optimal Time</button>
+                </form>
+            </div>
+            
+            <div id="scheduling-result" class="card hidden">
+                <h3>Optimal Interview Slot</h3>
+                <div id="optimal-slot-details">
+                    <!-- Optimal slot will be displayed here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Interview Management -->
+        <section id="interview-management">
+            <h2>Interview Management</h2>
+            
+            <div class="card">
+                <div class="form-group">
+                    <label for="interview-user-select">Select User:</label>
+                    <select id="interview-user-select">
+                        <option value="">-- Select User --</option>
+                    </select>
+                </div>
+                
+                <div id="interviews-list" class="list-container">
+                    <!-- Interviews will be displayed here -->
+                    <p class="empty-message">No interviews scheduled</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Demo Data Section -->
+        <section id="demo-section">
+            <h2>Demo Options</h2>
+            <div class="card">
+                <button id="init-demo-btn">Initialize Demo Data</button>
+                <p class="demo-message"></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 AI Scheduling Bot</p>
+    </footer>
+</body>
+</html>
