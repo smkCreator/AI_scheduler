@@ -12,16 +12,92 @@ class CalendarIntegration:
         self.service = None
         self.connected = False
         self._setup_google_calendar()
-    # Add this to the CalendarIntegration class in calender_module.py
-    def create_event(self, event_details):
-
-    # For demo purposes, generate a mock event ID
-        event_id = f"evt_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+    def create_event(self, title, start_time, end_time, attendees, location="Virtual Interview", description=""):
+        """
+        Create a calendar event and return necessary details for email notifications.
+        
+        Args:
+            title: Event title
+            start_time: Start time (ISO format string)
+            end_time: End time (ISO format string)
+            attendees: List of attendee email addresses
+            location: Location of the event
+            description: Event description
+            
+        Returns:
+            dict: Event details including calendar link
+        """
+        try:
+            if self.connected:
+                # Convert ISO strings to datetime objects
+                start_dt = datetime.datetime.fromisoformat(start_time)
+                end_dt = datetime.datetime.fromisoformat(end_time)
+                
+                # Create real Google Calendar event
+                event_body = {
+                    'summary': title,
+                    'description': description,
+                    'start': {
+                        'dateTime': start_time,
+                        'timeZone': 'UTC',
+                    },
+                    'end': {
+                        'dateTime': end_time,
+                        'timeZone': 'UTC',
+                    },
+                    'attendees': [{'email': email} for email in attendees],
+                    'location': location,
+                    'reminders': {
+                        'useDefault': False,
+                        'overrides': [
+                            {'method': 'email', 'minutes': 24 * 60},
+                            {'method': 'popup', 'minutes': 30},
+                        ],
+                    },
+                }
+                
+                try:
+                    event = self.service.events().insert(
+                        calendarId='primary',
+                        body=event_body,
+                        sendUpdates='all'
+                    ).execute()
+                    
+                    # Return event details for email notifications
+                    return {
+                        'event_id': event.get('id', ''),
+                        'calendar_link': event.get('htmlLink', ''),
+                        'status': 'confirmed'
+                    }
+                except Exception as e:
+                    print(f"Error creating Google Calendar event: {e}")
+                    # Fall back to demo mode
+            
+            # Demo mode (when not connected or error occurred)
+            print(f"[DEMO MODE] Creating calendar event: {title}")
+            print(f"- Start: {start_time}")
+            print(f"- End: {end_time}")
+            print(f"- Attendees: {attendees}")
+            
+            # Generate a mock event ID and calendar link
+            event_id = f"evt_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+            
+            return {
+                'event_id': event_id,
+                'calendar_link': f"https://calendar.google.com/calendar/event?eid={event_id}",
+                'status': 'demo'
+            }
+            
+        except Exception as e:
+            print(f"Error in create_event: {e}")
+            return {
+                'event_id': 'error',
+                'calendar_link': '',
+                'status': 'error',
+                'error': str(e)
+            }
     
-    # In a real implementation, this would make an API call to a calendar service
-        print(f"[DEMO MODE] Creating calendar event: {event_details['title']}")
-    
-        return event_id
     def _setup_google_calendar(self):
         SCOPES = ['https://www.googleapis.com/auth/calendar']
         creds = None
@@ -258,7 +334,7 @@ if __name__ == "__main__":
             title="Updated interview time with Basis Vectors",
             start_time=start_time,
             end_time=end_time,
-            attendees=["saikiran172003@gmail.com"],
+            attendees=["pavansai.bheemisetty@gmail.com"],
             description="""Hi Saikiran,
 
 Greetings from team Basis Vectors!

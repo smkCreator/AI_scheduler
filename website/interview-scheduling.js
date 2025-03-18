@@ -14,6 +14,36 @@ class InterviewScheduling {
         
         // Initialize interview management
         document.getElementById('interview-user-select').addEventListener('change', this.handleUserInterviewsChange.bind(this));
+        
+        // Initialize email scheduling buttons
+        document.getElementById('manual-schedule-btn').addEventListener('click', this.handleManualScheduleInterview.bind(this));
+        document.getElementById('auto-schedule-btn').addEventListener('click', this.handleAutoScheduleInterview.bind(this));
+        
+        // Initialize email scheduling form
+        document.getElementById('email-schedule-form').addEventListener('submit', this.handleEmailScheduleInterview.bind(this));
+        
+        // Initialize tabs for email scheduling
+        const emailSchedulingTabs = document.querySelectorAll('#email-schedule-form .tab-btn');
+        emailSchedulingTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                // Remove active class from all tabs
+                emailSchedulingTabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to current tab
+                e.target.classList.add('active');
+                
+                // Get the tab content ID
+                const tabContentId = e.target.getAttribute('data-tab');
+                
+                // Hide all tab contents
+                document.querySelectorAll('#email-schedule-form .tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show the selected tab content
+                document.getElementById(tabContentId).classList.add('active');
+            });
+        });
     }
 
     async handleScheduleInterview(event) {
@@ -225,6 +255,210 @@ class InterviewScheduling {
             console.error('Failed to update interview status:', error);
             this.showError('Failed to update interview status. Please try again.');
         }
+    }
+
+    async handleEmailScheduleInterview(event) {
+        event.preventDefault();
+        
+        const candidateEmail = document.getElementById('candidate-email').value;
+        const recruiterEmail = document.getElementById('recruiter-email').value;
+        const date = document.getElementById('interview-date').value;
+        const time = document.getElementById('interview-time').value;
+        const durationMinutes = parseInt(document.getElementById('email-duration').value);
+        
+        if (!candidateEmail || !recruiterEmail || !date || !time) {
+            this.showError('Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            const submitButton = document.querySelector('#email-schedule-form button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Scheduling...';
+            submitButton.disabled = true;
+            
+            // Schedule the interview using email
+            const result = await this.apiService.scheduleInterviewByEmail(
+                candidateEmail,
+                recruiterEmail,
+                date,
+                time,
+                durationMinutes
+            );
+            
+            // Reset button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            
+            // Display success message
+            alert('Interview scheduled successfully! Email notifications have been sent to both participants.');
+            
+            // Display the result in the result card
+            this.displayEmailSchedulingResult(result);
+            
+            // Clear the form
+            document.getElementById('email-schedule-form').reset();
+            
+        } catch (error) {
+            console.error('Failed to schedule interview by email:', error);
+            
+            // Reset button state
+            const submitButton = document.querySelector('#email-schedule-form button[type="submit"]');
+            submitButton.textContent = 'Schedule & Send Notifications';
+            submitButton.disabled = false;
+            
+            // Show error message
+            this.showError(`Failed to schedule interview: ${error.message}`);
+        }
+    }
+    
+    async handleManualScheduleInterview(event) {
+        event.preventDefault();
+        
+        const candidateEmail = document.getElementById('candidate-email').value;
+        const recruiterEmail = document.getElementById('recruiter-email').value;
+        const date = document.getElementById('interview-date').value;
+        const time = document.getElementById('interview-time').value;
+        const durationMinutes = parseInt(document.getElementById('email-duration-manual').value);
+        
+        if (!candidateEmail || !recruiterEmail || !date || !time) {
+            this.showError('Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            const submitButton = document.getElementById('manual-schedule-btn');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Scheduling...';
+            submitButton.disabled = true;
+            
+            // Schedule the interview using email
+            const result = await this.apiService.scheduleInterviewByEmail(
+                candidateEmail,
+                recruiterEmail,
+                date,
+                time,
+                durationMinutes
+            );
+            
+            // Reset button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            
+            // Display success message
+            this.showSuccess('Interview scheduled successfully! Email notifications have been sent to both participants.');
+            
+            // Display the result in the result card
+            this.displayEmailSchedulingResult(result);
+            
+            // Clear the form
+            document.getElementById('candidate-email').value = '';
+            document.getElementById('recruiter-email').value = '';
+            document.getElementById('interview-date').value = '';
+            document.getElementById('interview-time').value = '';
+            
+        } catch (error) {
+            console.error('Failed to schedule interview by email:', error);
+            
+            // Reset button state
+            const submitButton = document.getElementById('manual-schedule-btn');
+            submitButton.textContent = 'Schedule & Send Notifications';
+            submitButton.disabled = false;
+            
+            // Show error message
+            this.showError(`Failed to schedule interview: ${error.message}`);
+        }
+    }
+    
+    async handleAutoScheduleInterview(event) {
+        event.preventDefault();
+        
+        const candidateEmail = document.getElementById('candidate-email').value;
+        const recruiterEmail = document.getElementById('recruiter-email').value;
+        const durationMinutes = parseInt(document.getElementById('email-duration-auto').value);
+        
+        if (!candidateEmail || !recruiterEmail) {
+            this.showError('Please enter both candidate and recruiter email addresses');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            const submitButton = document.getElementById('auto-schedule-btn');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Finding optimal time...';
+            submitButton.disabled = true;
+            
+            // Auto-schedule the interview using email
+            const result = await this.apiService.autoScheduleByEmail(
+                candidateEmail,
+                recruiterEmail,
+                durationMinutes
+            );
+            
+            // Reset button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            
+            // Display success message
+            this.showSuccess('Automatically scheduled interview at optimal time! Email notifications have been sent to both participants.');
+            
+            // Display the result in the result card
+            this.displayEmailSchedulingResult(result, true);
+            
+            // Clear the form
+            document.getElementById('candidate-email').value = '';
+            document.getElementById('recruiter-email').value = '';
+            
+        } catch (error) {
+            console.error('Failed to auto-schedule interview:', error);
+            
+            // Reset button state
+            const submitButton = document.getElementById('auto-schedule-btn');
+            submitButton.textContent = 'Find Optimal Time & Schedule';
+            submitButton.disabled = false;
+            
+            // Show error message
+            this.showError(`Failed to auto-schedule interview: ${error.message}`);
+        }
+    }
+    
+    displayEmailSchedulingResult(result, isAutoScheduled = false) {
+        const resultContainer = document.getElementById('scheduling-result');
+        const detailsContainer = document.getElementById('optimal-slot-details');
+        
+        // Format the date for display
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleString();
+        };
+        
+        let resultHTML = `
+            <div class="result-details">
+                <p><strong>Status:</strong> <span class="success">Successfully Scheduled</span></p>
+                <p><strong>Interview ID:</strong> ${result.interview_id}</p>
+        `;
+        
+        if (isAutoScheduled && result.start_time) {
+            resultHTML += `
+                <p><strong>AI-Selected Time:</strong> ${formatDate(result.start_time)}</p>
+                <p><strong>End Time:</strong> ${formatDate(result.end_time)}</p>
+                <p><strong>Match Score:</strong> ${result.score ? result.score.toFixed(2) : 'N/A'}</p>
+            `;
+        }
+        
+        resultHTML += `
+                <p><strong>Notification Status:</strong> Email notifications and calendar invites sent</p>
+                <p>The interview has been scheduled and email notifications with calendar invites have been automatically sent to both participants.</p>
+            </div>
+        `;
+        
+        detailsContainer.innerHTML = resultHTML;
+        
+        // Show the result card
+        resultContainer.classList.remove('hidden');
     }
 
     showSuccess(message) {

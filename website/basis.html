@@ -167,6 +167,56 @@
                 </form>
             </div>
             
+            <div class="card">
+                <h3>Schedule by Email</h3>
+                <p>Schedule directly with email addresses and send automatic notifications</p>
+                
+                <form id="email-schedule-form">
+                    <div class="form-group">
+                        <label for="candidate-email">Candidate Email:</label>
+                        <input type="email" id="candidate-email" name="candidate_email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recruiter-email">Recruiter Email:</label>
+                        <input type="email" id="recruiter-email" name="recruiter_email" required>
+                    </div>
+                    
+                    <div class="tabs">
+                        <button type="button" class="tab-btn active" data-tab="auto-schedule">Auto Schedule</button>
+                        <button type="button" class="tab-btn" data-tab="manual-schedule">Manual Schedule</button>
+                    </div>
+                    
+                    <div id="auto-schedule" class="tab-content active">
+                        <div class="form-group">
+                            <label for="email-duration-auto">Duration (minutes):</label>
+                            <input type="number" id="email-duration-auto" name="duration_minutes" value="60" min="15" step="15">
+                        </div>
+                        <p class="info-text">The AI will automatically find the optimal time slot based on the availability of both participants.</p>
+                        <button type="button" id="auto-schedule-btn">Find Optimal Time & Schedule</button>
+                    </div>
+                    
+                    <div id="manual-schedule" class="tab-content">
+                        <div class="form-group">
+                            <label for="interview-date">Interview Date:</label>
+                            <input type="date" id="interview-date" name="date">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="interview-time">Interview Time:</label>
+                            <input type="time" id="interview-time" name="time">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email-duration-manual">Duration (minutes):</label>
+                            <input type="number" id="email-duration-manual" name="duration_minutes" value="60" min="15" step="15">
+                        </div>
+                        
+                        <button type="button" id="manual-schedule-btn">Schedule & Send Notifications</button>
+                    </div>
+                </form>
+            </div>
+            
             <div id="scheduling-result" class="card hidden">
                 <h3>Optimal Interview Slot</h3>
                 <div id="optimal-slot-details">

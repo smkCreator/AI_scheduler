@@ -76,6 +76,12 @@ class SimpleDatabase:
         self.cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
         return dict(self.cursor.fetchone() or {})
     
+    def get_user_by_email(self, email: str) -> Dict:
+        """Get user by email address"""
+        self.cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        result = self.cursor.fetchone()
+        return dict(result) if result else None
+    
     def get_users_by_type(self, user_type: str) -> List[Dict]:
         """Get all users of a specific type"""
         self.cursor.execute("SELECT * FROM users WHERE user_type = ?", (user_type,))

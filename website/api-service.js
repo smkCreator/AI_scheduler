@@ -5,12 +5,16 @@
 
 class ApiService {
     constructor(baseUrl = '') {
-        this.baseUrl = baseUrl || window.location.origin;
+        // Make sure we're using a consistent baseUrl
+        this.baseUrl = baseUrl || 'http://localhost:8000';
+        console.log(`API Service initialized with baseUrl: ${this.baseUrl}`);
     }
 
     async fetchJson(endpoint, options = {}) {
         try {
             const url = `${this.baseUrl}${endpoint}`;
+            console.log(`Fetching from: ${url}`, options);
+            
             const response = await fetch(url, {
                 ...options,
                 headers: {
@@ -73,6 +77,31 @@ class ApiService {
             body: JSON.stringify({
                 candidate_id: candidateId,
                 recruiter_id: recruiterId,
+                duration_minutes: durationMinutes
+            })
+        });
+    }
+
+    async scheduleInterviewByEmail(candidateEmail, recruiterEmail, date, time, durationMinutes) {
+        return this.fetchJson('/schedule_by_email', {
+            method: 'POST',
+            body: JSON.stringify({
+                candidate_email: candidateEmail,
+                recruiter_email: recruiterEmail,
+                date: date,
+                time: time,
+                duration_minutes: durationMinutes
+            })
+        });
+    }
+
+    async autoScheduleByEmail(candidateEmail, recruiterEmail, durationMinutes) {
+        // This endpoint will automatically find the optimal time and schedule it
+        return this.fetchJson('/auto_schedule_by_email', {
+            method: 'POST',
+            body: JSON.stringify({
+                candidate_email: candidateEmail,
+                recruiter_email: recruiterEmail,
                 duration_minutes: durationMinutes
             })
         });
